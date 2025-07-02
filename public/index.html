@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRT Control Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4">🎛️ SRT Control Panel</h1>
+
+    <button id="startBtn" class="bg-green-600 text-white px-4 py-2 rounded mr-2">Start Stream</button>
+    <button id="stopBtn" class="bg-red-600 text-white px-4 py-2 rounded">Stop Stream</button>
+
+    <div id="status" class="mt-4 text-sm"></div>
+
+    <h2 class="text-xl mt-8 mb-2">Active Streams</h2>
+    <pre id="streams" class="bg-white p-4 rounded shadow"></pre>
+  </div>
+
+  <script>
+    async function fetchStreams() {
+      const res = await fetch('/api/streams');
+      const data = await res.json();
+      document.getElementById('streams').textContent = JSON.stringify(data, null, 2);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', async () => {
+      const res = await fetch('/api/streams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const result = await res.json();
+      document.getElementById('status').textContent = JSON.stringify(result);
+      fetchStreams();
+    });
+
+    document.getElementById('stopBtn').addEventListener('click', async () => {
+      const res = await fetch('/api/streams/stream-1', {
+        method: 'DELETE'
+      });
+      const result = await res.json();
+      document.getElementById('status').textContent = JSON.stringify(result);
+      fetchStreams();
+    });
+
+    fetchStreams();
+    setInterval(fetchStreams, 5000);
+  </script>
+</body>
+</html>
